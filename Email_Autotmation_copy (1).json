@@ -1,0 +1,285 @@
+{
+  "name": "SherriffMed - Email Autotmation copy",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=**--- Start of Incoming Email Data ---**\n\n**Sender Information:**\n- Sender's Name/Email: {{ $json.headers.from }}\n- Sender's Email Address: {{ $json.from.value[0].address }} \n\n**Recipient Information:**\n- Recipient Email: {{ $json.headers.to }}\n\n**Email Metadata:**\n- Received Date: {{ $json.date }}\n- Subject Line: {{ $json.subject }}\n\n**Email Content:**\n- Body (Plain Text):\n{{ $json.text }}\n\n- Body (HTML):\n{{ $json.textAsHtml }}\n\n**--- End of Incoming Email Data ---**",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Role: You are an intelligent email automation assistant. Your purpose is to analyze incoming emails, identify requests for price lists, find the correct file id for the requested manufacturer, use a tool to get a shareable link(which is the web url) for that file from OneDrive, and then draft a standardized email reply containing that link.\n\n1. Primary Goal: Analyze and Identify\n\nAnalyze the Subject Line and Body of the incoming email.\n\nYour first task is to determine if the email is a request for a \"Price List\" or \"pricing\".\n\nYour second task is to identify the manufacturer's name being requested.\n\n2. Manufacturer Price List Database\n\nThis is your central reference for finding the correct file. To ensure you retrieve the correct document, you must match the manufacturer requested in the email to one of the names listed below and use the exact FileId provided.\n\nIf you identify MOBB Health Care:\n\nFileId: A7362CC259A9624F!s6de9905c57144ea5b7ab3299a62a33f4\n\nIf you identify Triumph Mobility:\n\nFileId: A7362CC259A9624F!s2a01976b8de74c5c9bd19ad4be61110a\n\n(Note for Admin: To add more suppliers, simply add a new bullet point to this section with the manufacturer's name and the exact file name to be used.)\n\n3. Tool Interaction: Get File Link (which is the weburl)\n\nIf the email requests a price list for a manufacturer found in the database above, use the OneDrive Get File tool.\n\nInput for the tool: You must pass the precise FileName from the database that corresponds to the requested manufacturer.\n\nOutput from the tool: The tool will return a shareable link to the file.\n\n4. Email Drafting\n\nOnce you have the file link from the tool, draft an email reply.\n\nUse the placeholder {{sender_name}} for the original sender's name.\n\nUse the placeholder {{manufacturer_name}} for the name of the supplier.\n\nUse the placeholder {{file_link}} for the link you received from the OneDrive tool.\n\nDraft Template:\n\nSubject: Re: {{original_subject}}\n\nBody:\n\nHi {{sender_name}},\n\nThanks for your interest in {{manufacturer_name}}. Please use the link below to access the price list you requested.\n\nPrice List Link: {{file_link}}\n\nShould you have any questions, please feel free to reach out to Dale at 403-598-0782.\n\nThanks\n\n5. Final Output\n\nIf a request is successfully identified and a link is generated, your final output must be a single JSON object containing the drafted email subject and body.\n\nIf the email is not a valid price list request or if the requested manufacturer is not in your database, do not proceed and output nothing.\n\nExample of expected final output:\n\nJSON\n\n{\n  \"subject\": \"Re: Inquiry about MOBB Health Care Pricing\",\n  \"body\": \"Hi John Doe,\\n\\nThanks for your interest in MOBB Health Care. Please use the link below to access the price list you requested.\\n\\n**Price List Link:** https://onedrive.live.com/view.aspx?resid=EXAMPLE_RES_ID&authkey=EXAMPLE_AUTH_KEY\\n\\nShould you have any questions, please feel free to reach out to Dale at 403-598-0782.\\n\\nThanks\"\n}\n\nIf the email subject or body doesn't contain an enquiry about Triumph Mobility or MOBB Health Care, output empty fields like below:\n{\n  \"subject\": \"\",\n  \"body\": \"\"\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        180,
+        -40
+      ],
+      "id": "bb3af575-6595-44c1-98de-b12c0db096f2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        160
+      ],
+      "id": "78456b54-278b-4005-8c38-1215921b93e5",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dczC5AJldvc5Qqxn",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.headers.from }}{{ $json.headers.date }}{{ $json.headers.to }}{{ $json.headers.subject }}{{ $json.text }}{{ $json.textAsHtml }}{{ $json.subject }}{{ $json.date }}{{ $json.to.value[0].address }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        180,
+        180
+      ],
+      "id": "cfaf28dd-f023-471a-8682-c504f2d3a115",
+      "name": "SMS-iT Memory"
+    },
+    {
+      "parameters": {
+        "fromEmail": "dale@sherriffmed.ca",
+        "toEmail": "={{$('Gmail Trigger').all()[0].json.from.value[0].address}}",
+        "subject": "={{ $('AI Agent').all()[0].json.output.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $('AI Agent').all()[0].json.output.body }}\n{{ $('AI Agent').all()[0].json.output.attachment }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        780,
+        -100
+      ],
+      "id": "dbdcead1-319f-4ab8-9bc6-8455a81f04a9",
+      "name": "Send Email",
+      "webhookId": "4e0e7e1d-a24c-4085-a085-c05524836ccb",
+      "credentials": {
+        "smtp": {
+          "id": "GK1OVjsjC1QBfTgF",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "fileId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.microsoftOneDriveTool",
+      "typeVersion": 1,
+      "position": [
+        400,
+        160
+      ],
+      "id": "88a9657f-07d9-48cf-9e4a-2e98255e002f",
+      "name": "Microsoft OneDrive",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "E4WTalmU4zaOWGyj",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {}
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -40,
+        -40
+      ],
+      "id": "a1c7e8a4-d48d-4410-ba83-71dfb90a6586",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TpGh2tdfZCZh31LN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"subject\":\"Re: Inquiry about Triumph Mobility Pricing\",\"body\":\"Hi John Doe,\\n\\nThanks for your interest in Triumph Mobility. Please see the attached price list for the pricing you need and should you have any questions please feel free to reach out to Dale at 403-598-0782.\\n\\nThanks\",\"attachment\":\"[file_object_from_onedrive]\"}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        180
+      ],
+      "id": "9fc8d3cb-4a44-4bef-917e-69eb7a1b830d",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c4d1aa76-26c7-40d7-8708-2502d2dea23a",
+              "leftValue": "={{ $('AI Agent').all()[0].json.output.subject }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        540,
+        -40
+      ],
+      "id": "59402997-3046-4242-9941-0552645a99ab",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        760,
+        60
+      ],
+      "id": "86add203-ee73-4a94-8a26-0b64036d0d6c",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS-iT Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft OneDrive": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "82e8ec9d-be6a-4872-8263-2ab9e668f2d3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "14d178341d60ac17e687e97f99fbd9c7576f73a73b0b76b4dcf67de696be9c55"
+  },
+  "id": "tFVjJTj7azxiQoLc",
+  "tags": []
+}

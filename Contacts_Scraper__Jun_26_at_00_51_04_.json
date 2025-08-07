@@ -1,0 +1,1078 @@
+{
+  "name": "Jeff's First Nations Contacts (Jun 26 at 00:51:04)",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -400
+      ],
+      "id": "c63ccd90-6d9c-4c20-bdfe-3caf422f0e4f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -580,
+        290
+      ],
+      "id": "ec23583d-0432-4f5c-bf61-12d5371c752e",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -360,
+        165
+      ],
+      "id": "f9b968a6-de67-4ab8-9d78-b88b214967b5",
+      "name": "HTTP Request1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.links }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        80,
+        165
+      ],
+      "id": "711a6812-3337-4f55-b028-65a98247fec9",
+      "name": "AI Agent",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -140,
+        165
+      ],
+      "id": "e72d468f-5bc9-4d74-886d-5566208dd5cd",
+      "name": "HTML2",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        -800,
+        810
+      ],
+      "id": "edd84509-f64d-41d4-ac3f-542bc36a77b2",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        896,
+        165
+      ],
+      "id": "c74e776b-37a2-4e60-9dea-5744da5b8680",
+      "name": "HTTP Request3",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1116,
+        165
+      ],
+      "id": "7bea616c-fe28-4c82-96ca-926b1c19e477",
+      "name": "HTML3",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1336,
+        165
+      ],
+      "id": "3b5fc2e5-d83c-4c20-b77b-8492aff0b64d",
+      "name": "AI Agent1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "",
+        "notice": ""
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        676,
+        165
+      ],
+      "id": "78c2fe05-b8b4-41b0-88d2-9b5ca14af799",
+      "name": "Code2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        385
+      ],
+      "id": "eec375fa-f387-45a5-bda3-3b089a354f04",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dczC5AJldvc5Qqxn",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        168,
+        385
+      ],
+      "id": "1f3c0f5b-e1d1-46b9-91f2-9d03cfff8755",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dczC5AJldvc5Qqxn",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();",
+        "notice": ""
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        290
+      ],
+      "id": "536b5bdc-fde6-4d7f-8746-5cbadc3c1661",
+      "name": "Code1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "",
+        "notice": ""
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        456,
+        165
+      ],
+      "id": "80dcaa2c-f0bb-45ab-aeb7-b61a0aef6302",
+      "name": "Code3",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "option": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "option": "list"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -800,
+        290
+      ],
+      "id": "0259a66b-3bed-4d0e-b56c-bde7a31fdb09",
+      "name": "Google Sheets"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "option": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "option": "list"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -800,
+        550
+      ],
+      "id": "d9de45d4-61df-4f7c-8b63-e22491cd2470",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9sujfL36bb4giN4l",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://api.pdf.co/v1/pdf/makesearchable",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -140,
+        -620
+      ],
+      "id": "728a2cf6-e12d-449a-8c02-5639d820ed53",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "=GET",
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        300,
+        -620
+      ],
+      "id": "32c08071-7aef-4757-a68e-a0b8318590d9",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -620
+      ],
+      "id": "5a5f45ea-0261-4a65-8ca1-9586d39525b1",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1QTPoeVNYUQCZwfBOKl1dGA-hFN4aeutBPgdl4x6fDcI",
+          "mode": "list",
+          "cachedResultName": "ON-Default (1)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QTPoeVNYUQCZwfBOKl1dGA-hFN4aeutBPgdl4x6fDcI/edit?usp=drivesdk",
+          "option": "1QTPoeVNYUQCZwfBOKl1dGA-hFN4aeutBPgdl4x6fDcI"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1787966037,
+          "mode": "list",
+          "cachedResultName": "ON-Default (1)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QTPoeVNYUQCZwfBOKl1dGA-hFN4aeutBPgdl4x6fDcI/edit#gid=1787966037",
+          "option": 1787966037
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -580,
+        -400
+      ],
+      "id": "c5659b22-62aa-4b2e-ac35-d33be9d6b8f8",
+      "name": "Google Sheets2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9sujfL36bb4giN4l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -360,
+        -400
+      ],
+      "id": "eecff551-3dae-486a-aa54-ad08f9f794fa",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "064c62d4-cda8-447c-ac7f-a29eaa5dcb72",
+              "leftValue": "={{ $json.jobId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        -620
+      ],
+      "id": "b22ee518-1abb-405c-be2c-628af7fd27b2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        300,
+        -320
+      ],
+      "id": "a3f53e25-7172-4dec-8891-04d28924bd28",
+      "name": "Wait",
+      "webhookId": "940a96c1-3041-4aba-8092-7325354d0da3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/job/check",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        -320
+      ],
+      "id": "c49edad7-a620-4625-b84c-3a44a7db9aec",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI assistant tasked with extracting contact information for chiefs, leaders, or executives from a webpage on a First Nation’s website. You will receive the text content of a page that likely contains governance, leadership, or contact information. Your job is to identify individuals with titles such as \"Chief,\" \"Executive,\" \"President,\" \"Director,\" \"Council Member,\" or similar high-ranking positions, and extract their names and any available contact information (e.g., email, phone number). If no contact information is available, extract only the name and position.\n\nInput:\nAccept from user\n\n\nInstructions:\n1. Identify individuals with titles indicating leadership (e.g., \"Chief,\" \"Executive Director,\" \"President,\" \"Council Chief,\" \"Band Manager\").\n2. For each identified individual, extract:\n   - Name (e.g., \"John Doe\")\n   - Position (e.g., \"Chief\")\n   - Email (if available, e.g., \"john.doe@example.com\")\n   - Phone Number (if available, e.g., \"123-456-7890\")\n3. Ignore non-leadership roles (e.g., administrative staff, general employees).\n4. Return a list of the items, each containing:\n   - name: The individual’s name\n   - position: Their title\n   - email: The email address (or null if not available)\n   - phone: The phone number (or null if not available)\n   - website_name: The name of the First Nation (provided by user)\n5. If no relevant individuals are found, return an empty.\n\nOutput Format:\nThe response should be a direct JSON array. DO NOT wrap the JSON in any markdown code blocks (e.g.,  json).\n\nExample Output (strictly array, no markdown code block):\n\n[\n  {\n    \"name\": \"John Doe\",\n    \"position\": \"Chief\",\n    \"email\": \"john.doe@example.com\",\n    \"phone\": \"123-456-7890\",\n    \"website_name\": \"?Aq'am\"\n  },\n  {\n    \"name\": \"Jane Smith\",\n    \"position\": \"Council Member\",\n    \"email\": null,\n    \"phone\": null,\n    \"website_name\": \"?Aq'am\"\n  },\n  {\n    \"name\": \"Alex Brown\",\n    \"position\": \"Band Manager\",\n    \"email\": \"alex.brown@example.com\",\n    \"phone\": null,\n    \"website_name\": \"?Aq'am\"\n  }\n]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        -420
+      ],
+      "id": "f3d614ac-d3dd-426b-98bb-bf8a19dad3b1",
+      "name": "AI Agent2",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite-preview-02-05",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        -200
+      ],
+      "id": "e37418ec-1b6a-4f5a-83cb-69286b6ca089",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "weAKzDFn6izwi1pr",
+          "name": "Google Gemini(PaLM) Api account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst items = [];\n\nfor (const item of $input.all()) {\n  // Check if the 'output' field exists and is a string\n  if (item.json.output && typeof item.json.output === 'string') {\n    let rawOutput = item.json.output;\n\n    // 1. Remove markdown code block delimiters\n    // This regex looks for ```json at the start and ``` at the end\n    // and captures the content in between.\n    const jsonMatch = rawOutput.match(/```json\\s*([\\s\\S]*?)\\s*```/);\n\n    let parsedJson = null;\n\n    if (jsonMatch && jsonMatch[1]) {\n      // Content inside the markdown block\n      const jsonString = jsonMatch[1];\n      try {\n        parsedJson = JSON.parse(jsonString);\n      } catch (e) {\n        console.log(\"Error parsing JSON from markdown block:\", e);\n        // If parsing fails, try parsing the original rawOutput\n        try {\n            parsedJson = JSON.parse(rawOutput);\n        } catch (e) {\n            console.log(\"Error parsing original rawOutput as JSON:\", e);\n        }\n      }\n    } else {\n        // If no markdown block is found, try to parse the rawOutput directly\n        try {\n            parsedJson = JSON.parse(rawOutput);\n        } catch (e) {\n            console.log(\"Error parsing rawOutput directly as JSON:\", e);\n        }\n    }\n\n    // Add the parsed JSON to the output items\n    if (parsedJson !== null) {\n      // If the parsed JSON is an array, iterate and push individual objects\n      if (Array.isArray(parsedJson)) {\n        for (const element of parsedJson) {\n          items.push({ json: element });\n        }\n      } else {\n        // If it's a single object, push it directly\n        items.push({ json: parsedJson });\n      }\n    }\n  }\n}\n\nreturn items;",
+        "notice": ""
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        -320
+      ],
+      "id": "948cfc5f-c241-4b9e-9ee2-8661e851e4a2",
+      "name": "Code",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI assistant tasked with extracting contact information for chiefs, leaders, or executives from a webpage on a First Nation’s website. You will receive the text content of a page that likely contains governance, leadership, or contact information. Your job is to identify individuals with titles such as \"Chief,\" \"Executive,\" \"President,\" \"Director,\" \"Council Member,\" or similar high-ranking positions, and extract their names and any available contact information (e.g., email, phone number). If no contact information is available, extract only the name and position.\n\nInput:\nAccept from user\n\n\nInstructions:\n1. Identify individuals with titles indicating leadership (e.g., \"Chief,\" \"Executive Director,\" \"President,\" \"Council Chief,\" \"Band Manager\").\n2. For each identified individual, extract:\n   - Name (e.g., \"John Doe\")\n   - Position (e.g., \"Chief\")\n   - Email (if available, e.g., \"john.doe@example.com\")\n   - Phone Number (if available, e.g., \"123-456-7890\")\n3. Ignore non-leadership roles (e.g., administrative staff, general employees).\n4. Return a list of the items, each containing:\n   - name: The individual’s name\n   - position: Their title\n   - email: The email address (or null if not available)\n   - phone: The phone number (or null if not available)\n   - website_name: The name of the First Nation (provided by user)\n5. If no relevant individuals are found, return an empty.\n\nOutput Format:\nThe response should be a direct JSON array. DO NOT wrap the JSON in any markdown code blocks (e.g.,  json).\n\nExample Output (strictly array, no markdown code block):\n\n[\n  {\n    \"name\": \"John Doe\",\n    \"position\": \"Chief\",\n    \"email\": \"john.doe@example.com\",\n    \"phone\": \"123-456-7890\",\n    \"website_name\": \"?Aq'am\"\n  },\n  {\n    \"name\": \"Jane Smith\",\n    \"position\": \"Council Member\",\n    \"email\": null,\n    \"phone\": null,\n    \"website_name\": \"?Aq'am\"\n  },\n  {\n    \"name\": \"Alex Brown\",\n    \"position\": \"Band Manager\",\n    \"email\": \"alex.brown@example.com\",\n    \"phone\": null,\n    \"website_name\": \"?Aq'am\"\n  }\n]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        740,
+        -720
+      ],
+      "id": "2f59b4c4-f31c-4bec-b652-32a08b0b9f43",
+      "name": "AI Agent3",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite-preview-02-05",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -500
+      ],
+      "id": "577dd22b-f8af-4c48-8130-37e5c5d64236",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dczC5AJldvc5Qqxn",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst items = [];\n\nfor (const item of $input.all()) {\n  // Check if the 'output' field exists and is a string\n  if (item.json.output && typeof item.json.output === 'string') {\n    let rawOutput = item.json.output;\n\n    // 1. Remove markdown code block delimiters\n    // This regex looks for ```json at the start and ``` at the end\n    // and captures the content in between.\n    const jsonMatch = rawOutput.match(/```json\\s*([\\s\\S]*?)\\s*```/);\n\n    let parsedJson = null;\n\n    if (jsonMatch && jsonMatch[1]) {\n      // Content inside the markdown block\n      const jsonString = jsonMatch[1];\n      try {\n        parsedJson = JSON.parse(jsonString);\n      } catch (e) {\n        console.log(\"Error parsing JSON from markdown block:\", e);\n        // If parsing fails, try parsing the original rawOutput\n        try {\n            parsedJson = JSON.parse(rawOutput);\n        } catch (e) {\n            console.log(\"Error parsing original rawOutput as JSON:\", e);\n        }\n      }\n    } else {\n        // If no markdown block is found, try to parse the rawOutput directly\n        try {\n            parsedJson = JSON.parse(rawOutput);\n        } catch (e) {\n            console.log(\"Error parsing rawOutput directly as JSON:\", e);\n        }\n    }\n\n    // Add the parsed JSON to the output items\n    if (parsedJson !== null) {\n      // If the parsed JSON is an array, iterate and push individual objects\n      if (Array.isArray(parsedJson)) {\n        for (const element of parsedJson) {\n          items.push({ json: element });\n        }\n      } else {\n        // If it's a single object, push it directly\n        items.push({ json: parsedJson });\n      }\n    }\n  }\n}\n\nreturn items;",
+        "notice": ""
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1116,
+        -620
+      ],
+      "id": "e0a3c681-7d8c-4104-afdd-6cd2cb72ad91",
+      "name": "Code4",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -320
+      ],
+      "id": "f40e1351-58e0-4f57-b9db-05f19f55101f",
+      "name": "Extract from File1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VSEJPoSZj_vo4ZnetbBXs6lXUzSAejU6jVZzg3G2BaQ",
+          "mode": "list",
+          "cachedResultName": "FN Chiefs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VSEJPoSZj_vo4ZnetbBXs6lXUzSAejU6jVZzg3G2BaQ/edit?usp=drivesdk",
+          "option": "1VSEJPoSZj_vo4ZnetbBXs6lXUzSAejU6jVZzg3G2BaQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "BC",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VSEJPoSZj_vo4ZnetbBXs6lXUzSAejU6jVZzg3G2BaQ/edit#gid=0",
+          "option": "gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": {},
+          "schema": {},
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false,
+          "option": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1414,
+        -620
+      ],
+      "id": "9698e3b3-60d5-4af1-8325-216381b1d79c",
+      "name": "Google Sheets3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9sujfL36bb4giN4l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VSEJPoSZj_vo4ZnetbBXs6lXUzSAejU6jVZzg3G2BaQ",
+          "mode": "list",
+          "cachedResultName": "FN Chiefs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VSEJPoSZj_vo4ZnetbBXs6lXUzSAejU6jVZzg3G2BaQ/edit?usp=drivesdk",
+          "option": "1VSEJPoSZj_vo4ZnetbBXs6lXUzSAejU6jVZzg3G2BaQ"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 528148639,
+          "mode": "list",
+          "cachedResultName": "Ontario",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VSEJPoSZj_vo4ZnetbBXs6lXUzSAejU6jVZzg3G2BaQ/edit#gid=528148639",
+          "option": 528148639
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": {},
+          "schema": {},
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false,
+          "option": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1940,
+        -200
+      ],
+      "id": "e7e134c1-d3f4-4095-a9d3-487e381a0d2d",
+      "name": "Google Sheets4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9sujfL36bb4giN4l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        -320
+      ],
+      "id": "31d71c90-3bad-4470-9589-4b71f6a1cfcb",
+      "name": "HTTP Request5",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTML2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "HTML3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets4": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "9a6e5c35-8a8d-45fc-8c33-3f4efa993890",
+  "meta": {
+    "instanceId": "14d178341d60ac17e687e97f99fbd9c7576f73a73b0b76b4dcf67de696be9c55"
+  },
+  "id": "HXlp2uMga14Ehah5",
+  "tags": []
+}
