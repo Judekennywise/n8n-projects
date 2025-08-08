@@ -1,0 +1,409 @@
+{
+  "name": "SherriffMed - Triumph Mobility Email Autotmation",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=**--- Start of Incoming Email Data ---**\n\n**Sender Information:**\n- Sender's Name/Email: {{ $json.headers.from }}\n- Sender's Email Address: {{ $json.from.value[0].address }} \n\n**Recipient Information:**\n- Recipient Email: {{ $json.headers.to }}\n\n**Email Metadata:**\n- Received Date: {{ $json.date }}\n- Subject Line: {{ $json.subject }}\n\n**Email Content:**\n- Body (Plain Text):\n{{ $json.text }}\n\n- Body (HTML):\n{{ $json.textAsHtml }}\n\n**--- End of Incoming Email Data ---**",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Role: You are an intelligent quoting assistant for Triumph Mobility. Your primary function is to analyze incoming email requests, determine if they are for specific product pricing or general pricing, and respond according to the precise operational workflow defined below.\n\nCore Objective: To provide specific product pricing when possible, and intelligently handle vague requests for \"general pricing\" by either asking for clarification or directing the prospect to the correct contact person. Core Objective: You must only respond to inquiries about Triumph Mobility. If a requested product is not found in the Triumph Mobility price list, it is for another supplier and output an empty response to stop the workflow.\n\nOperational Workflow\nYou must follow these steps in order:\n\n1. Initial Analysis:\n\nAnalyze the Subject Line and Body of the incoming email.\n\nFirst, confirm the request is about \"Triumph Mobility\". If not, stop processing.\n\nIf requesting for a and the product is NOT FOUND: The request is for another supplier. STOP PROCESSING. Immediately output the empty JSON response: {\"subject\": \"\", \"body\": \"\"}. If the product is FOUND: The request is valid. Proceed to Step 2 (Handling a Specific Product Request).\n\nNext, determine the request type by identifying keywords.\n\nType A (Specific): The email mentions a specific product name (e.g., \"Escape Rollator\", \"Liberty Heavy Duty Walker\").\n\nType B (General): The email uses vague terms like \"general pricing\", \"price list\", \"all your prices\", or \"catalog pricing\" without naming a product.\n\n2. Handling a Specific Product Request (Type A):\n\nAction: Use the document retriever tool to perform a lookup.\n\nAction: Search within the document for the requested product name and retrieve its corresponding MSRP value.\n\nDraft the following email response:\n\nSubject: Re: {{original_subject}}\n\nBody:\nHi {{sender_name}},\n\nThanks for your interest in Triumph Mobility. The pricing for the {{product_name}} you requested is {{msrp_price}}.\n\nIf you have any questions or require a comprehensive price list, please feel free to reach out to Dale at 403-598-0782.\n\nThanks\n\n3. Handling a General Pricing Request (Type B):\n\nThis path requires checking the conversation history with the sender.\n\nStep 3a: Analyze History: Check the email thread to see if you have previously asked this specific sender for more details.\n\nStep 3b: If this is the FIRST time they've asked for general pricing:\n\nAction: Ask for clarification.\n\nDraft the following email response:\n\nSubject: Re: {{original_subject}}\n\nBody:\nHi {{sender_name}},\n\nThanks for your interest in Triumph Mobility. To provide you with the most accurate pricing, could you please let me know which specific products you are interested in?\n\nI can then send you the details right away.\n\nThanks\n\nStep 3c: If they INSIST on general pricing after you have already asked for specifics:\n\nAction: Deflect the request to Dale.\n\nDraft the following email response:\n\nSubject: Re: {{original_subject}}\n\nBody:\nHi {{sender_name}},\n\nI understand. For a comprehensive price list and to discuss general pricing, the best person to speak with is Dale.\n\nYou can reach him directly at 403-598-0782. He will be happy to assist you.\n\nThanks\nExample of expected final output:\n\nJSON\n\n{\n  \"subject\": \"Re: Inquiry about Triumph Mobility Pricing\",\n  \"body\": \"Hi John,\n\nThanks for your interest in Triumph Mobility. The pricing for the Rollator you requested is $XX.\n\nIf you have any questions or require a comprehensive price list, please feel free to reach out to Dale at 403-598-0782.\n\nThanks\n}\n\nIf the email subject or body doesn't contain an enquiry about Triumph Mobility, output empty fields like below:\n{\n  \"subject\": \"\",\n  \"body\": \"\"\n}\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        -560
+      ],
+      "id": "7f653c03-374f-45e9-a195-3242c2edc774",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -300
+      ],
+      "id": "f6014ef3-133f-491a-b3c9-574abe792349",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DJyt7OJf19fLYfZ1",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.headers.from }}{{ $json.headers.date }}{{ $json.headers.to }}{{ $json.headers.subject }}{{ $json.text }}{{ $json.textAsHtml }}{{ $json.subject }}{{ $json.date }}{{ $json.to.value[0].address }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -560,
+        -340
+      ],
+      "id": "ca03ab8c-01c2-4d3d-b1cc-d056778cafc0",
+      "name": "SMS-iT Memory"
+    },
+    {
+      "parameters": {
+        "fromEmail": "dale@sherriffmed.ca",
+        "toEmail": "={{$('Email Trigger (IMAP)').all()[0].json.from.value[0].address}}",
+        "subject": "={{ $('AI Agent').all()[0].json.output.subject }}",
+        "html": "={{ $('AI Agent').all()[0].json.output.sbody }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        40,
+        -600
+      ],
+      "id": "c3d37aac-276f-48d3-9fa5-1529aebb20dc",
+      "name": "Send Email",
+      "webhookId": "14719ca2-4acc-4b3d-9452-89e5bb4a57d3",
+      "credentials": {
+        "smtp": {
+          "id": "GK1OVjsjC1QBfTgF",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "869a5ac1-6241-4b61-9e7c-3d7918003761",
+              "leftValue": "={{ $('AI Agent').all()[0].json.output.subject }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -180,
+        -560
+      ],
+      "id": "918b2a63-7a0a-4c4b-9292-53959935b6e4",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        40,
+        -460
+      ],
+      "id": "b01d27d6-c26c-4175-a2f7-ad68c58f3856",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"subject\":\"Re: Inquiry about MOBB Health Care Pricing\",\"body\":\"Hi John Doe,\\n\\nThanks for your interest in MOBB Health Care. Please use the link below to access the price list you requested.\\n\\n**Price List Link:** https://onedrive.live.com/view.aspx?resid=EXAMPLE_RES_ID&authkey=EXAMPLE_AUTH_KEY\\n\\nShould you have any questions, please feel free to reach out to Dale at 403-598-0782.\\n\\nThanks\"}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        -140,
+        -400
+      ],
+      "id": "24690904-6d4b-431c-8bc5-f636472dc72f",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "name": "price_list",
+        "description": "Contains the price list for triumph mobility that you can check for to answer price list questions."
+      },
+      "id": "e9ea735f-f66c-4082-b197-f3fc22f7a2a5",
+      "name": "Retrieve Documents",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "mailbox": "Inbox",
+        "postProcessAction": "nothing",
+        "format": "resolved",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        -560
+      ],
+      "id": "20fc6fff-17cb-4909-8130-9a4cc95e6503",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "RIBhRof80CTd5dlk",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": {
+          "__rl": true,
+          "value": "triumph_supplier",
+          "mode": "list",
+          "cachedResultName": "triumph_supplier"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "1c0c82b2-d4a4-4648-b344-3994f07410af",
+      "name": "Supabase Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -80
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "ZnRAuTwxwQoDdm6h",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -60
+      ],
+      "id": "1e4e0d25-5fdc-4784-acdc-fe646290cedb",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "weAKzDFn6izwi1pr",
+          "name": "Google Gemini(PaLM) Api account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/text-embedding-004"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        100
+      ],
+      "id": "9afe065c-5924-4a65-a8f1-68cd5faaff5f",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "weAKzDFn6izwi1pr",
+          "name": "Google Gemini(PaLM) Api account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "jude@swiftimmersive.com",
+        "subject": "=New message: {{ $('AI Agent').all()[0].json.output.subject }}",
+        "message": "={{ $('AI Agent').all()[0].json.output.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        260,
+        -600
+      ],
+      "id": "f471f4e2-0644-40c1-ad15-5b6d818ef42f",
+      "name": "Gmail",
+      "webhookId": "06d48042-fb25-4fd4-af06-a4b75a000010",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TpGh2tdfZCZh31LN",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS-iT Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Documents": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Retrieve Documents",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Retrieve Documents",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2c80eff0-9a8f-4bd8-ad34-8719ef652f5c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "14d178341d60ac17e687e97f99fbd9c7576f73a73b0b76b4dcf67de696be9c55"
+  },
+  "id": "SRat7rns0pBy7I6a",
+  "tags": []
+}
